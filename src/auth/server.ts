@@ -1,10 +1,10 @@
-import { OAuth2Client } from 'google-auth-library';
-import { TokenManager } from './tokenManager.js';
-import http from 'http';
-import { URL } from 'url';
-import open from 'open';
-import { loadCredentials } from './client.js';
-import { getAccountMode } from './utils.js';
+import { OAuth2Client } from "google-auth-library";
+import { TokenManager } from "./tokenManager.js";
+import http from "http";
+import { URL } from "url";
+import open from "open";
+import { loadCredentials } from "./client.js";
+import { getAccountMode } from "./utils.js";
 
 export class AuthServer {
   private baseOAuth2Client: OAuth2Client; // Used by TokenManager for validation/refresh
@@ -12,7 +12,7 @@ export class AuthServer {
   private server: http.Server | null = null;
   private tokenManager: TokenManager;
   private portRange: { start: number; end: number };
-  private activeConnections: Set<import('net').Socket> = new Set(); // Track active socket connections
+  private activeConnections: Set<import("net").Socket> = new Set(); // Track active socket connections
   public authCompletedSuccessfully = false; // Flag for standalone script
 
   constructor(oauth2Client: OAuth2Client) {
@@ -22,47 +22,47 @@ export class AuthServer {
   }
   private createServer(): http.Server {
     const server = http.createServer(async (req, res) => {
-      const url = new URL(req.url || '/', `http://${req.headers.host}`);
-      
-      if (url.pathname === '/') {
+      const url = new URL(req.url || "/", `http://${req.headers.host}`);
+
+      if (url.pathname === "/") {
         // Root route - show auth link
         const clientForUrl = this.flowOAuth2Client || this.baseOAuth2Client;
-        const scopes = ["https://www.googleapis.com/auth/documents",
+        const scopes = [
+          "https://www.googleapis.com/auth/documents",
           "https://www.googleapis.com/auth/drive",
           "https://www.googleapis.com/auth/drive.readonly",
-          "https://www.googleapis.com/auth/drive.file"
+          "https://www.googleapis.com/auth/drive.file",
         ];
         const authUrl = clientForUrl.generateAuthUrl({
-          access_type: 'offline',
+          access_type: "offline",
           scope: scopes,
-          prompt: 'consent'
+          prompt: "consent",
         });
-        
+
         const accountMode = getAccountMode();
-        
-        res.writeHead(200, { 'Content-Type': 'text/html' });
+
+        res.writeHead(200, { "Content-Type": "text/html" });
         res.end(`
           <h1>Google Docs Authentication</h1>
           <p><strong>Account Mode:</strong> <code>${accountMode}</code></p>
           <p>You are authenticating for the <strong>${accountMode}</strong> account.</p>
           <a href="${authUrl}">Authenticate with Google</a>
         `);
-        
-      } else if (url.pathname === '/oauth2callback') {
+      } else if (url.pathname === "/oauth2callback") {
         // OAuth callback route
-        const code = url.searchParams.get('code');
+        const code = url.searchParams.get("code");
         if (!code) {
-          res.writeHead(400, { 'Content-Type': 'text/plain' });
-          res.end('Authorization code missing');
+          res.writeHead(400, { "Content-Type": "text/plain" });
+          res.end("Authorization code missing");
           return;
         }
-        
+
         if (!this.flowOAuth2Client) {
-          res.writeHead(500, { 'Content-Type': 'text/plain' });
-          res.end('Authentication flow not properly initiated.');
+          res.writeHead(500, { "Content-Type": "text/plain" });
+          res.end("Authentication flow not properly initiated.");
           return;
         }
-        
+
         try {
           const { tokens } = await this.flowOAuth2Client.getToken(code);
           await this.tokenManager.saveTokens(tokens);
@@ -70,8 +70,8 @@ export class AuthServer {
 
           const tokenPath = this.tokenManager.getTokenPath();
           const accountMode = this.tokenManager.getAccountMode();
-          
-          res.writeHead(200, { 'Content-Type': 'text/html' });
+
+          res.writeHead(200, { "Content-Type": "text/html" });
           res.end(`
             <!DOCTYPE html>
             <html lang="en">
@@ -104,10 +104,11 @@ export class AuthServer {
           `);
         } catch (error: unknown) {
           this.authCompletedSuccessfully = false;
-          const message = error instanceof Error ? error.message : 'Unknown error';
+          const message =
+            error instanceof Error ? error.message : "Unknown error";
           process.stderr.write(`✗ Token save failed: ${message}\n`);
 
-          res.writeHead(500, { 'Content-Type': 'text/html' });
+          res.writeHead(500, { "Content-Type": "text/html" });
           res.end(`
             <!DOCTYPE html>
             <html lang="en">
@@ -135,28 +136,32 @@ export class AuthServer {
         }
       } else {
         // 404 for other routes
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Not Found');
+        res.writeHead(404, { "Content-Type": "text/plain" });
+        res.end("Not Found");
       }
     });
 
     // Track connections at server level
-    server.on('connection', (socket) => {
+    server.on("connection", (socket) => {
       this.activeConnections.add(socket);
-      socket.on('close', () => {
+      socket.on("close", () => {
         this.activeConnections.delete(socket);
       });
     });
-    
+
     return server;
-}
-async start(openBrowser = true): Promise<boolean> {
+  }
+  async start(openBrowser = true): Promise<boolean> {
     // Add timeout wrapper to prevent hanging
     return Promise.race([
       this.startWithTimeout(openBrowser),
       new Promise<boolean>((_, reject) => {
-        setTimeout(() => reject(new Error('Auth server start timed out after 10 seconds')), 10000);
-      })
+        setTimeout(
+          () =>
+            reject(new Error("Auth server start timed out after 10 seconds")),
+          10000,
+        );
+      }),
     ]).catch(() => false); // Return false on timeout instead of throwing
   }
   private async startWithTimeout(openBrowser = true): Promise<boolean> {
@@ -164,7 +169,7 @@ async start(openBrowser = true): Promise<boolean> {
       this.authCompletedSuccessfully = true;
       return true;
     }
-    
+
     // Try to start the server and get the port
     const port = await this.startServerOnAvailablePort();
     if (port === null) {
@@ -178,39 +183,48 @@ async start(openBrowser = true): Promise<boolean> {
       this.flowOAuth2Client = new OAuth2Client(
         client_id,
         client_secret,
-        `http://localhost:${port}/oauth2callback`
+        `http://localhost:${port}/oauth2callback`,
       );
     } catch (error) {
-        // Could not load credentials, cannot proceed with auth flow
-        this.authCompletedSuccessfully = false;
-        await this.stop(); // Stop the server we just started
-        return false;
+      // Could not load credentials, cannot proceed with auth flow
+      console.log(error);
+      this.authCompletedSuccessfully = false;
+      await this.stop(); // Stop the server we just started
+      return false;
     }
 
     // Generate Auth URL using the newly created flow client
     const authorizeUrl = this.flowOAuth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: ["https://www.googleapis.com/auth/documents",
-          "https://www.googleapis.com/auth/drive",
-          "https://www.googleapis.com/auth/drive.readonly",
-          "https://www.googleapis.com/auth/drive.file"
-        ],
-      prompt: 'consent'
+      access_type: "offline",
+      scope: [
+        "https://www.googleapis.com/auth/documents",
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/drive.readonly",
+        "https://www.googleapis.com/auth/drive.file",
+      ],
+      prompt: "consent",
     });
-    
+
     // Always show the URL in console for easy access
     process.stderr.write(`\n🔗 Authentication URL: ${authorizeUrl}\n\n`);
     process.stderr.write(`Or visit: http://localhost:${port}\n\n`);
-    
+
     if (openBrowser) {
       try {
         await open(authorizeUrl);
-        process.stderr.write(`Browser opened automatically. If it didn't open, use the URL above.\n`);
+        process.stderr.write(
+          `Browser opened automatically. If it didn't open, use the URL above.\n`,
+        );
       } catch (error) {
-        process.stderr.write(`Could not open browser automatically. Please use the URL above.\n`);
+        console.log(error);
+        process.stderr.write(
+          `Could not open browser automatically. Please use the URL above.\n`,
+        );
       }
     } else {
-      process.stderr.write(`Please visit the URL above to complete authentication.\n`);
+      process.stderr.write(
+        `Please visit the URL above to complete authentication.\n`,
+      );
     }
 
     return true; // Auth flow initiated
@@ -225,10 +239,10 @@ async start(openBrowser = true): Promise<boolean> {
             this.server = testServer; // Assign to class property *only* if successful
             resolve();
           });
-          testServer.on('error', (err: NodeJS.ErrnoException) => {
-            if (err.code === 'EADDRINUSE') {
+          testServer.on("error", (err: NodeJS.ErrnoException) => {
+            if (err.code === "EADDRINUSE") {
               // Port is in use, close the test server and reject
-              testServer.close(() => reject(err)); 
+              testServer.close(() => reject(err));
             } else {
               // Other error, reject
               reject(err);
@@ -238,9 +252,15 @@ async start(openBrowser = true): Promise<boolean> {
         return port; // Port successfully bound
       } catch (error: unknown) {
         // Check if it's EADDRINUSE, otherwise rethrow or handle
-        if (!(error instanceof Error && 'code' in error && error.code === 'EADDRINUSE')) {
-            // An unexpected error occurred during server start
-            return null;
+        if (
+          !(
+            error instanceof Error &&
+            "code" in error &&
+            error.code === "EADDRINUSE"
+          )
+        ) {
+          // An unexpected error occurred during server start
+          return null;
         }
         // EADDRINUSE occurred, loop continues
       }
@@ -251,7 +271,7 @@ async start(openBrowser = true): Promise<boolean> {
   public getRunningPort(): number | null {
     if (this.server) {
       const address = this.server.address();
-      if (typeof address === 'object' && address !== null) {
+      if (typeof address === "object" && address !== null) {
         return address.port;
       }
     }
@@ -266,14 +286,14 @@ async start(openBrowser = true): Promise<boolean> {
           connection.destroy();
         }
         this.activeConnections.clear();
-        
+
         // Add a timeout to force close if server doesn't close gracefully
         const timeout = setTimeout(() => {
-          process.stderr.write('Server close timeout, forcing exit...\n');
+          process.stderr.write("Server close timeout, forcing exit...\n");
           this.server = null;
           resolve();
         }, 2000); // 2 second timeout
-        
+
         this.server.close((err) => {
           clearTimeout(timeout);
           if (err) {

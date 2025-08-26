@@ -1,10 +1,11 @@
-{"installed":
-    {"client_id":"your-client-ID",
-    "project_id":"your-project_id",
-    "auth_uri":"your-auth_uri",
-    "token_uri":"your-token_uri",
-    "auth_provider_x509_cert_url":"your-auth_provider_x509_cert_url",
-    "client_secret":"your-client_secret",
-    "redirect_uris":["http://localhost"]
-    }
+{
+  "installed": {
+    "client_id": "your-client-ID",
+    "project_id": "your-project_id",
+    "auth_uri": "your-auth_uri",
+    "token_uri": "your-token_uri",
+    "auth_provider_x509_cert_url": "your-auth_provider_x509_cert_url",
+    "client_secret": "your-client_secret",
+    "redirect_uris": ["http://localhost"]
+  }
 }

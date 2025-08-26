@@ -12,4 +12,4 @@ export class StdioTransportHandler {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
   }
-} 
+}

@@ -1,20 +1,23 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
 import { OAuth2Client } from "google-auth-library";
-import { log } from "./logger.js";
-import { initializeOAuth2Client } from './auth/client.js';
-import { AuthServer } from './auth/server.js';
-import { TokenManager } from './auth/tokenManager.js';
+// import { log } from "./logger.js";
+import { initializeOAuth2Client } from "./auth/client.js";
+import { AuthServer } from "./auth/server.js";
+import { TokenManager } from "./auth/tokenManager.js";
 // Import tool registry
-import { ToolRegistry } from './tools/registry.js';
+import { ToolRegistry } from "./tools/registry.js";
 
 // Import transport handlers
-import { StdioTransportHandler } from './transports/stdio.js';
-import { HttpTransportHandler, HttpTransportConfig } from './transports/http.js';
+import { StdioTransportHandler } from "./transports/stdio.js";
+import {
+  HttpTransportHandler,
+  HttpTransportConfig,
+} from "./transports/http.js";
 
 // Minimal stdio MCP server with four tools
 
-import { ServerConfig } from './config/TransportConfig.js';
+import { ServerConfig } from "./config/TransportConfig.js";
 
 export class GoogleDocsMcpServer {
   private server: McpServer;
@@ -27,7 +30,7 @@ export class GoogleDocsMcpServer {
     this.config = config;
     this.server = new McpServer({
       name: "google-docs",
-      version: "0.1.0"
+      version: "0.1.0",
     });
   }
 
@@ -49,58 +52,68 @@ export class GoogleDocsMcpServer {
 
   private async handleStartupAuthentication(): Promise<void> {
     // Skip authentication in test environment
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === "test") {
       return;
     }
     const accountMode = this.tokenManager.getAccountMode();
-    if (this.config.transport.type === 'stdio') {
+    if (this.config.transport.type === "stdio") {
       // For stdio mode, ensure authentication before starting server
-      const hasValidTokens = await this.tokenManager.validateTokens(accountMode);
+      const hasValidTokens =
+        await this.tokenManager.validateTokens(accountMode);
       if (!hasValidTokens) {
         // Ensure we're using the correct account mode (don't override it)
         const authSuccess = await this.authServer.start(true); // openBrowser = true
         if (!authSuccess) {
-          process.stderr.write(`Authentication failed for ${accountMode} account. Please check your OAuth credentials and try again.\n`);
+          process.stderr.write(
+            `Authentication failed for ${accountMode} account. Please check your OAuth credentials and try again.\n`,
+          );
           process.exit(1);
         }
         process.stderr.write(`Successfully authenticated user.\n`);
       } else {
-        process.stderr.write(`Valid ${accountMode} user tokens found, skipping authentication prompt.\n`);
+        process.stderr.write(
+          `Valid ${accountMode} user tokens found, skipping authentication prompt.\n`,
+        );
       }
     } else {
       // For HTTP mode, check for tokens but don't block startup
-      const hasValidTokens = await this.tokenManager.validateTokens(accountMode);
+      const hasValidTokens =
+        await this.tokenManager.validateTokens(accountMode);
       if (!hasValidTokens) {
-        process.stderr.write(`⚠️  No valid ${accountMode} user authentication tokens found.\n`);
-        process.stderr.write('Visit the server URL in your browser to authenticate, or run "npm run auth" separately.\n');
+        process.stderr.write(
+          `⚠️  No valid ${accountMode} user authentication tokens found.\n`,
+        );
+        process.stderr.write(
+          'Visit the server URL in your browser to authenticate, or run "npm run auth" separately.\n',
+        );
       } else {
         process.stderr.write(`Valid ${accountMode} user tokens found.\n`);
       }
     }
-}
-private registerTools(): void {
+  }
+  private registerTools(): void {
     ToolRegistry.registerAll(this.server, this.executeWithHandler.bind(this));
   }
-private async ensureAuthenticated(): Promise<void> {
+  private async ensureAuthenticated(): Promise<void> {
     // Check if we already have valid tokens
     if (await this.tokenManager.validateTokens()) {
       return;
     }
     // For stdio mode, authentication should have been handled at startup
-    if (this.config.transport.type === 'stdio') {
+    if (this.config.transport.type === "stdio") {
       throw new McpError(
         ErrorCode.InvalidRequest,
-        "Authentication tokens are no longer valid. Please restart the server to re-authenticate."
+        "Authentication tokens are no longer valid. Please restart the server to re-authenticate.",
       );
     }
     // For HTTP mode, try to start auth server if not already running
     try {
       const authSuccess = await this.authServer.start(false); // openBrowser = false for HTTP mode
-      
+
       if (!authSuccess) {
         throw new McpError(
           ErrorCode.InvalidRequest,
-          "Authentication required. Please run 'npm run auth' to authenticate, or visit the auth URL shown in the logs for HTTP mode."
+          "Authentication required. Please run 'npm run auth' to authenticate, or visit the auth URL shown in the logs for HTTP mode.",
         );
       }
     } catch (error) {
@@ -110,32 +123,40 @@ private async ensureAuthenticated(): Promise<void> {
       if (error instanceof Error) {
         throw new McpError(ErrorCode.InvalidRequest, error.message);
       }
-      throw new McpError(ErrorCode.InvalidRequest, "Authentication required. Please run 'npm run auth' to authenticate.");
+      throw new McpError(
+        ErrorCode.InvalidRequest,
+        "Authentication required. Please run 'npm run auth' to authenticate.",
+      );
     }
-}
-private async executeWithHandler(handler: any, args: any): Promise<{ content: Array<{ type: "text"; text: string }> }> {
+  }
+  private async executeWithHandler(
+    handler: any,
+    args: any,
+  ): Promise<{ content: Array<{ type: "text"; text: string }> }> {
     await this.ensureAuthenticated();
     const result = await handler.runTool(args, this.oauth2Client);
     return result;
   }
-async start(): Promise<void> {
+  async start(): Promise<void> {
     switch (this.config.transport.type) {
-      case 'stdio':
+      case "stdio":
         const stdioHandler = new StdioTransportHandler(this.server);
         await stdioHandler.connect();
         break;
-        
-      case 'http':
+
+      case "http":
         const httpConfig: HttpTransportConfig = {
           port: this.config.transport.port,
-          host: this.config.transport.host
+          host: this.config.transport.host,
         };
         const httpHandler = new HttpTransportHandler(this.server, httpConfig);
         await httpHandler.connect();
         break;
-        
+
       default:
-        throw new Error(`Unsupported transport type: ${this.config.transport.type}`);
+        throw new Error(
+          `Unsupported transport type: ${this.config.transport.type}`,
+        );
     }
   }
   private setupGracefulShutdown(): void {
@@ -144,13 +165,15 @@ async start(): Promise<void> {
         if (this.authServer) {
           await this.authServer.stop();
         }
-        
+
         // McpServer handles transport cleanup automatically
         this.server.close();
-        
+
         process.exit(0);
       } catch (error: unknown) {
-        process.stderr.write(`Error during cleanup: ${error instanceof Error ? error.message : error}\n`);
+        process.stderr.write(
+          `Error during cleanup: ${error instanceof Error ? error.message : error}\n`,
+        );
         process.exit(1);
       }
     };
@@ -163,4 +186,4 @@ async start(): Promise<void> {
   getServer(): McpServer {
     return this.server;
   }
-} 
+}

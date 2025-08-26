@@ -1,0 +1,10 @@
+# Dependencies
+node_modules/
+
+# Build output
+build/
+dist/
+
+# Misc (optional but handy)
+coverage/
+.DS_Store

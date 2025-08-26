@@ -9,7 +9,7 @@ A Model Context Protocol (MCP) server that lets AI assistants (e.g., Claude) wor
 ## ✨ Features
 
 - **List Docs (Drive, Docs only)** – Query your Drive for Google Docs (`application/vnd.google-apps.document`) with title, ID, and metadata. Supports folder scoping and extra Drive query parameters.
-- **Get full document** – Retrieve the complete Google Docs structure (suitable for summarization, analysis, and formatting). *Supports fetching tab content.*
+- **Get full document** – Retrieve the complete Google Docs structure (suitable for summarization, analysis, and formatting). _Supports fetching tab content._
 - **Create Docs** – Spin up a new Doc with an initial title and (optionally) place it inside a Drive folder.
 - **Update Docs** – Apply edits to an existing Doc (insert/append text, headings/paragraph styles, replacements).
 
@@ -24,7 +24,6 @@ These tool names reflect your implementation:
 - `create-doc` — Create a new **blank** Google Doc with a given title. Optionally place it in a Drive folder.
 - `update-doc` — Update an existing Google Doc (e.g., insert/replace text, apply styles).
 
-
 ---
 
 ## 🧪 Example prompts (Claude / MCP client)
@@ -35,7 +34,7 @@ These tool names reflect your implementation:
 3. Get the same doc and show a preview of 400 chars.
 4. Summarize the doc
 5. Create a doc with name new_file_name
-6. Add list of commands in this doc and write it in a fashion that explains the intent of this doc. Also add the current temp and lunar phase of the moon today. 
+6. Add list of commands in this doc and write it in a fashion that explains the intent of this doc. Also add the current temp and lunar phase of the moon today.
 7. Update this list with 5 random cities from Washington and add the temp of those cities as well.
 
 ```
@@ -54,6 +53,7 @@ These tool names reflect your implementation:
 4. While the app is in **Test mode**, add your Google account under **OAuth consent screen → Test users**.
 
 **Recommended scopes (least‑privilege):**
+
 - **Read only:**
   - `https://www.googleapis.com/auth/documents.readonly`
   - `https://www.googleapis.com/auth/drive.metadata.readonly`
@@ -61,17 +61,19 @@ These tool names reflect your implementation:
   - `https://www.googleapis.com/auth/documents`
   - `https://www.googleapis.com/auth/drive.file` (or `drive` if you truly need broad access)
 
-> Tokens issued in *Test mode* often expire in ~7 days; you can re‑auth when prompted or publish the app to extend token lifetimes.
+> Tokens issued in _Test mode_ often expire in ~7 days; you can re‑auth when prompted or publish the app to extend token lifetimes.
 
 ---
 
 ## ⚙️ Install & Run
 
 ### Prerequisites
+
 - **Node.js LTS** (v18+ recommended)
 - **npm** or **pnpm**
 
 ### Local install
+
 ```bash
 git clone https://github.com/Prakul95/mcp-server-google-docs.git
 cd mcp-server-google-docs
@@ -80,6 +82,7 @@ npm run build
 ```
 
 ### Start the server (stdio MCP)
+
 ```bash
 # From repo root
 npm start             # if defined in package.json
@@ -92,11 +95,14 @@ node ./dist/server.js
 ## 🖥️ Configure your MCP client
 
 ### Claude Desktop
+
 Edit:
+
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
 Add an entry like:
+
 ```json
 {
   "mcpServers": {
@@ -114,6 +120,7 @@ Add an entry like:
 > Tip: While iterating, you can wire up a dev command (e.g., `tsx src/server.ts`) if you prefer to run TypeScript directly.
 
 ### Cursor / other MCP clients
+
 Use the MCP configuration UI or a JSON config similar to the above (pointing to the built server). Ensure the `GOOGLE_OAUTH_CREDENTIALS` env var points to your credentials JSON.
 
 ---
@@ -128,6 +135,7 @@ Use the MCP configuration UI or a JSON config similar to the above (pointing to 
   - `GOOGLE_OAUTH_CREDENTIALS` points to a **valid** credentials JSON file.
 
 ### Re‑authentication (Test Mode)
+
 - Expect token expiry roughly weekly in test mode.
 - Re‑run your client and complete the OAuth prompt again.
 - Publishing the app reduces re‑auth frequency (expect an “unverified app” banner).

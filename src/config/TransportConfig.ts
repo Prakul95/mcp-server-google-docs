@@ -1,5 +1,5 @@
 export interface TransportConfig {
-  type: 'stdio' | 'http';
+  type: "stdio" | "http";
   port?: number;
   host?: string;
 }
@@ -12,32 +12,32 @@ export function parseArgs(args: string[]): ServerConfig {
   // Start with environment variables as base config
   const config: ServerConfig = {
     transport: {
-      type: (process.env.TRANSPORT as 'stdio' | 'http') || 'stdio',
+      type: (process.env.TRANSPORT as "stdio" | "http") || "stdio",
       port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
-      host: process.env.HOST || '127.0.0.1'
+      host: process.env.HOST || "127.0.0.1",
     },
-    debug: process.env.DEBUG === 'true' || false
+    debug: process.env.DEBUG === "true" || false,
   };
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     switch (arg) {
-      case '--transport':
+      case "--transport":
         const transport = args[++i];
-        if (transport === 'stdio' || transport === 'http') {
+        if (transport === "stdio" || transport === "http") {
           config.transport.type = transport;
         }
         break;
-      case '--port':
+      case "--port":
         config.transport.port = parseInt(args[++i], 10);
         break;
-      case '--host':
+      case "--host":
         config.transport.host = args[++i];
         break;
-      case '--debug':
+      case "--debug":
         config.debug = true;
         break;
-      case '--help':
+      case "--help":
         process.stderr.write(`
 Google Docs MCP Server
 
@@ -66,4 +66,4 @@ Examples:
   }
 
   return config;
-} 
+}

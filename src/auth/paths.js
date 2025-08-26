@@ -5,23 +5,24 @@
  * This module provides consistent token path resolution across all scripts
  */
 
-import path from 'path';
-import { homedir } from 'os';
+import path from "path";
+import { homedir } from "os";
 
 /**
  * Get the secure token storage path
  * Uses XDG Base Directory specification on Unix-like systems
  */
 export function getSecureTokenPath() {
-  const configDir = process.env.XDG_CONFIG_HOME || path.join(homedir(), '.config');
-  return path.join(configDir, 'google-docs-mcp', 'tokens.json');
+  const configDir =
+    process.env.XDG_CONFIG_HOME || path.join(homedir(), ".config");
+  return path.join(configDir, "google-docs-mcp", "tokens.json");
 }
 
 /**
  * Get the legacy token path (for migration purposes)
  */
 export function getLegacyTokenPath() {
-  return path.join(process.cwd(), '.gcp-saved-tokens.json');
+  return path.join(process.cwd(), ".gcp-saved-tokens.json");
 }
 
 /**
@@ -31,14 +32,14 @@ export function getLegacyTokenPath() {
 export function getAccountMode() {
   // If set explicitly via environment variable use that instead
   const explicitMode = process.env.GOOGLE_ACCOUNT_MODE?.toLowerCase();
-  if (explicitMode === 'test' || explicitMode === 'normal') {
+  if (explicitMode === "test" || explicitMode === "normal") {
     return explicitMode;
   }
   // Auto-detect test environment
-  if (process.env.NODE_ENV === 'test') {
-    return 'test';
+  if (process.env.NODE_ENV === "test") {
+    return "test";
   }
-  
+
   // Default to normal for regular app usage
-  return 'normal';
+  return "normal";
 }
