@@ -140,12 +140,12 @@ const commands = {
   "docker:exec": {
     description: "Execute commands in running Docker container",
     cmd: "docker",
-    args: ["compose", "exec", "calendar-mcp", "sh"],
+    args: ["compose", "exec", "docs-mcp", "sh"],
   },
   "docker:auth": {
     description: "Authenticate OAuth in Docker container",
     cmd: "docker",
-    args: ["compose", "exec", "calendar-mcp", "npm", "run", "auth"],
+    args: ["compose", "exec", "docs-mcp", "npm", "run", "auth"],
   },
   "docker:test:quick": {
     description: "Run quick Docker tests (no OAuth required)",
@@ -155,7 +155,7 @@ const commands = {
 };
 
 function showHelp() {
-  console.log("🛠️  Google Calendar MCP - Development Helper\n");
+  console.log("🛠️  Google docs MCP - Development Helper\n");
   console.log("Usage: npm run dev <command>\n");
   console.log("Available commands:\n");
 

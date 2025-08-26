@@ -33,7 +33,7 @@ export abstract class BaseToolHandler {
       if (status === 404) {
         throw new McpError(
           ErrorCode.InvalidRequest,
-          `Resource not found: ${errorData?.error?.message || "The requested calendar or event does not exist"}`,
+          `Resource not found: ${errorData?.error?.message || "The requested document does not exist"}`,
         );
       }
 

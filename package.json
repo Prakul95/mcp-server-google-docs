@@ -4,7 +4,7 @@
   "main": "build/index.js",
   "type": "module",
   "bin": {
-    "google-calendar-mcp": "build/index.js"
+    "google-docs-mcp": "build/index.js"
   },
   "files": [
     "build/",
@@ -15,15 +15,15 @@
     "mcp",
     "model-context-protocol",
     "claude",
-    "google-calendar",
-    "calendar",
+    "google-docs",
+    "docs",
     "ai",
     "llm",
     "integration"
   ],
   "scripts": {
     "start": "tsx src/server.ts",
-    "build": "npm run lint:fix && node scripts/build.js",
+    "build": "npm run format && npm run lint:fix && node scripts/build.js",
     "auth": "node build/auth-server.js",
     "dev": "node scripts/dev.js",
     "test": "vitest run src/tests/unit",
