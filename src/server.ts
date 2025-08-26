@@ -2,9 +2,6 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
 import { OAuth2Client } from "google-auth-library";
 import { log } from "./logger.js";
-// import { getAuth } from "./auth/auth.js";
-// import { listDocs } from "./google-tools/drive/google-drive.js";
-// import { createDoc, getDoc, appendTextTop } from "./google-tools/docs/google-docs.js";
 import { initializeOAuth2Client } from './auth/client.js';
 import { AuthServer } from './auth/server.js';
 import { TokenManager } from './auth/tokenManager.js';
@@ -167,72 +164,3 @@ async start(): Promise<void> {
     return this.server;
   }
 } 
-// server(
-//   {
-//     name: "list_docs",
-//     description: "List Google Docs via Drive. Optional Drive query string and pageSize.",
-//   },
-//   async ({ query, pageSize }: { query?: string; pageSize?: number }) => {
-//     const auth = await getAuth();
-//     const files = await listDocs(auth, query, pageSize ?? 10);
-//     return { files };
-//   }
-// );
-// server.tool()
-// server.tool(
-//   {
-//     name: "create_doc",
-//     description: "Create a Google Doc with a title.",
-//     inputSchema: {
-//       type: "object",
-//       required: ["title"],
-//       properties: { title: { type: "string" } }
-//     }
-//   },
-//   async ({ title }: { title: string }) => {
-//     const auth = await getAuth();
-//     const doc = await createDoc(auth, title);
-//     return {
-//       id: doc.documentId,
-//       title: doc.title,
-//       url: doc.documentId ? `https://docs.google.com/document/d/${doc.documentId}/edit` : undefined
-//     };
-// //   }
-// // );
-
-// // server.tool(
-// //   {
-// //     name: "get_doc",
-// //     description: "Fetch raw Google Docs document JSON.",
-// //     inputSchema: {
-// //       type: "object",
-// //       required: ["docId"],
-// //       properties: { docId: { type: "string" } }
-// //     }
-// //   },
-// //   async ({ docId }: { docId: string }) => {
-// //     const auth = await getAuth();
-// //     const document = await getDoc(auth, docId);
-// //     return { document };
-// //   }
-// // );
-
-// server.tool(
-//   {
-//     name: "append_text",
-//     description: "Insert plain text at the top of the document (index=1).",
-//     inputSchema: {
-//       type: "object",
-//       required: ["docId", "text"],
-//       properties: { docId: { type: "string" }, text: { type: "string" } }
-//     }
-//   },
-//   async ({ docId, text }: { docId: string; text: string }) => {
-//     const auth = await getAuth();
-//     await appendTextTop(auth, docId, text);
-//     return { ok: true } as const;
-//   }
-// );
-
-// server.start();
-// log.info("Google Docs MCP server started (stdio)");
