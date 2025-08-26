@@ -85,7 +85,7 @@ function showHelp(): void {
 Google docs MCP Server v${VERSION}
 
 Usage:
-  npx @cocal/google-docs-mcp [command]
+  npx @kryto/google-docs-mcp [command]
 
 Commands:
   auth     Run the authentication flow
@@ -94,10 +94,10 @@ Commands:
   help     Show this help message
 
 Examples:
-  npx @cocal/google-docs-mcp auth
-  npx @cocal/google-docs-mcp start
-  npx @cocal/google-docs-mcp version
-  npx @cocal/google-docs-mcp
+  npx @kryto/google-docs-mcp auth
+  npx @kryto/google-docs-mcp start
+  npx @kryto/google-docs-mcp version
+  npx @kryto/google-docs-mcp
 
 Environment Variables:
   GOOGLE_OAUTH_CREDENTIALS    Path to OAuth credentials file
