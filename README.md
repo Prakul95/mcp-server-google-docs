@@ -12,6 +12,7 @@ A Model Context Protocol (MCP) server that lets AI assistants (e.g., Claude) wor
 - **Get full document** – Retrieve the complete Google Docs structure (suitable for summarization, analysis, and formatting). _Supports fetching tab content._
 - **Create Docs** – Spin up a new Doc with an initial title and (optionally) place it inside a Drive folder.
 - **Update Docs** – Apply edits to an existing Doc (insert/append text, headings/paragraph styles, replacements).
+- **Copy Docs** - Creates a copy of an existing Doc.
 
 ---
 
@@ -26,6 +27,9 @@ These tool names reflect your implementation:
 - `copy-doc` — copy an existing Google Doc optionally with a given title.
 
 ---
+## Demo Video
+
+[![Demo Video](https://img.youtube.com/vi/GsZ1WITEu_0/0.jpg)](https://youtu.be/GsZ1WITEu_0) 
 
 ## 🧪 Example prompts (Claude / MCP client)
 
