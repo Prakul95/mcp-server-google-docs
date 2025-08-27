@@ -87,7 +87,7 @@ npm run build
 ```
 
 ### Start the server (stdio MCP)
-
+// TBA ypu can build the project and directluy update the claude_desktop_config.json, steps mentioned below
 ```bash
 # From repo root
 npm start             # if defined in package.json
