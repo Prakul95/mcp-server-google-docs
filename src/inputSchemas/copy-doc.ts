@@ -77,19 +77,17 @@ const res = await drive.files.copy(args);
  * Safe, writable subset of Google Drive v3 File fields for files.copy requestBody.
  * (Most other Schema$File fields are read-only and should not be sent.)
  */
-export const WritableDriveFile = z
-  .object({
-    name: z.string().min(1).optional(),
-    parents: z.array(z.string().min(1)).min(1).optional(),
-    mimeType: z.string().optional(),
-    description: z.string().optional(),
-    properties: z.record(z.string()).optional(),
-    appProperties: z.record(z.string()).optional(),
-    copyRequiresWriterPermission: z.coerce.boolean().optional(),
-    viewersCanCopyContent: z.coerce.boolean().optional(),
-    writersCanShare: z.coerce.boolean().optional(),
-  })
-  .strict();
+export const WritableDriveFile = z.object({
+  name: z.string().min(1).optional(),
+  // parents: z.array(z.string().min(1)).min(1).optional(),
+  // mimeType: z.string().optional(),
+  // description: z.string().optional(),
+  // properties: z.record(z.string()).optional(),
+  // appProperties: z.record(z.string()).optional(),
+  // copyRequiresWriterPermission: z.coerce.boolean().optional(),
+  // viewersCanCopyContent: z.coerce.boolean().optional(),
+  // writersCanShare: z.coerce.boolean().optional(),
+});
 
 export const CopyFileArgsSchema = z
   .object({

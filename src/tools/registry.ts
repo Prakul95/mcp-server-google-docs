@@ -365,23 +365,20 @@ export const ToolSchemas = {
   //       "Whether to keep a persistent, immutable copy of the revision (Drive setting).",
   //     ),
   // }),
-  "copy-doc": z
-    .object({
-      // Top-level params
-      // enforceSingleParent: z.coerce.boolean().optional(), // deprecated
-      fileId: z.string().min(1).describe("ID of the source file to copy."),
-      ignoreDefaultVisibility: z.coerce.boolean().optional(),
-      includeLabels: z.string().optional(), // comma-separated label IDs
-      includePermissionsForView: z.enum(["published"]).optional(),
-      keepRevisionForever: z.coerce.boolean().optional(),
-      ocrLanguage: z.string().optional(), // ISO 639-1 hint; leave unset unless you're importing images
-      supportsAllDrives: z.coerce.boolean().default(true).optional(),
-      // supportsTeamDrives: z.coerce.boolean().optional(), // deprecated
-
-      // Request body (new file metadata)
-      requestBody: WritableDriveFile.optional(),
-    })
-    .strict(),
+  "copy-doc": z.object({
+    // Top-level params
+    // enforceSingleParent: z.coerce.boolean().optional(), // deprecated
+    fileId: z.string().min(1).describe("ID of the source file to copy."),
+    // ignoreDefaultVisibility: z.coerce.boolean().optional(),
+    // includeLabels: z.string().optional(), // comma-separated label IDs
+    // includePermissionsForView: z.enum(["published"]).optional(),
+    // keepRevisionForever: z.coerce.boolean().optional(),
+    // ocrLanguage: z.string().optional(), // ISO 639-1 hint; leave unset unless you're importing images
+    supportsAllDrives: z.coerce.boolean().default(true).optional(),
+    // supportsTeamDrives: z.coerce.boolean().optional(), // deprecated
+    // Request body (new file metadata)
+    requestBody: WritableDriveFile.optional(),
+  }).strict(),
 
   // Helper: return tab metadata (IDs, titles, hierarchy) without full content
   "list-tabs": z.object({

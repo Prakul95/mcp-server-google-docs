@@ -30,7 +30,7 @@ export class CopyDocHandler extends BaseToolHandler {
       // const body = {
       //     'name': copy_title
       // }
-
+      args.supportsAllDrives = true;
       const drive = this.getDrive(client);
       const response = await drive.files.copy(args);
 
