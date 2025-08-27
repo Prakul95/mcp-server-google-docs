@@ -2,10 +2,15 @@ import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { OAuth2Client } from "google-auth-library";
 import { BaseToolHandler } from "./BaseToolHandler.js";
 import { drive_v3 } from "googleapis";
+import { ListDocsInput } from "../../tools/registry.js";
 
 export class ListDocsHandler extends BaseToolHandler {
-  async runTool(_: any, oauth2Client: OAuth2Client): Promise<CallToolResult> {
-    const documents = await this.listDocs(oauth2Client);
+  async runTool(
+    args: ListDocsInput,
+    oauth2Client: OAuth2Client,
+  ): Promise<CallToolResult> {
+    const validArgs = args;
+    const documents = await this.listDocs(oauth2Client, validArgs);
     return {
       content: [
         {
@@ -14,20 +19,37 @@ export class ListDocsHandler extends BaseToolHandler {
         },
       ],
     };
+    // async runTool(_: any, oauth2Client: OAuth2Client): Promise<CallToolResult> {
+    //   const documents = await this.listDocs(oauth2Client);
+    //   return {
+    //     content: [
+    //       {
+    //         type: "text", // This MUST be a string literal
+    //         text: this.formatDocsList(documents),
+    //       },
+    //     ],
+    //   };
   }
   private async listDocs(
     client: OAuth2Client,
+    query?: ListDocsInput,
   ): Promise<drive_v3.Schema$FileList> {
     try {
+      let searchTerm = "";
+      if (query?.searchTerm) {
+        searchTerm = "and " + query.searchTerm;
+      }
       const docs = this.getDrive(client);
       const response = await docs.files.list({
-        q: "mimeType='application/vnd.google-apps.document'",
+        // q: query?.query,
+        q: `mimeType='application/vnd.google-apps.document'${searchTerm}`,
         fields: "files(id, name, createdTime, modifiedTime)",
         pageSize: 50,
         supportsAllDrives: true,
         includeItemsFromAllDrives: true,
         corpora: "allDrives",
       });
+      // const response = await docs.files.list(query);
       return response.data || [];
     } catch (error) {
       throw this.handleGoogleApiError(error);

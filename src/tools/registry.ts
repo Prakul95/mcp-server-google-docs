@@ -6,8 +6,17 @@ import { ListDocsHandler } from "../handlers/core/ListDocsHandler.js";
 import { GetDocHandler } from "../handlers/core/GetDocHandler.js";
 import { CreateDocHandler } from "../handlers/core/CreateDocHandler.js";
 import { UpdateDocHandler } from "../handlers/core/UpdateDocHandler.js";
-// import { CopyDocHandler } from "../handlers/core/CopyDocHandler.js";
+import { CopyDocHandler } from "../handlers/core/CopyDocHandler.js";
+import { WritableDriveFile } from "../inputSchemas/copy-doc.js";
 // import { ListTabsHandler } from "../handlers/core/ListTabsHandler.js";
+const queryExamples = `expression ANDed with the Docs mimeType and optional parent. Example:"name contains 'Spec'"." Files with the name "hello"    name = 'hello'
+Files with a name containing the words "hello" and "goodbye"    name contains 'hello' and name contains 'goodbye'
+Files with a name that does not contain the word "hello"    not name contains 'hello'
+Files that contain the text "important" and in the trash    fullText contains 'important' and trashed = true
+Files that contain the word "hello"    fullText contains 'hello'
+Files that don't have the word "hello"    not fullText contains 'hello'
+Files that contain the exact phrase "hello world"    fullText contains '"hello world"'
+Files with a query that contains the "\\" character (for example, "\\authors")    fullText contains '\\authors'`;
 
 export const ToolSchemas = {
   // Drive: list Google Docs (optionally by folder, with extra Drive query options)
@@ -18,12 +27,10 @@ export const ToolSchemas = {
       .describe(
         "Optional Drive folder ID to restrict results (filters to parents contains folderId).",
       ),
-    query: z
-      .string()
-      .optional()
-      .describe(
-        "Additional Drive 'q' expression ANDed with the Docs mimeType and optional parent. Example: \"name contains 'Spec'\".",
-      ),
+    searchTerm: z.string().optional().describe(
+      queryExamples,
+      // "Additional Drive 'q' expression ANDed with the Docs mimeType and optional parent. Example: \"name contains 'Spec'\".",
+    ),
     orderBy: z
       .string()
       .optional()
@@ -87,142 +94,7 @@ export const ToolSchemas = {
     //   "Optional Drive folder ID to place the new doc into (performed via Drive after creation)."
     // )
   }),
-
-  // "update-doc": z.object({
-  //   title: z.string().min(1).describe("Title for the new document."),
-  //   // folderId: z.string().optional().describe(
-  //   //   "Optional Drive folder ID to place the new doc into (performed via Drive after creation)."
-  //   // )
-  // }),
-  // "update-doc": z.object({
-  //   documentId: z.string().min(1).describe("Google Docs documentId (same as Drive fileId) to update."),
-  //   writeControl: z.object({
-  //     requiredRevisionId: z.string().describe("If provided, the write will fail unless the doc is at this revision."),
-  //   }).optional().describe("Optional optimistic concurrency control."),
-
-  //   // ---- ONE of the following operation blocks ----
-
-  //   insertText: z.object({
-  //     location: z.object({
-  //       index: z.number().int().min(1).describe("Docs insertion index (1 = after start marker)."),
-  //     }).describe("Where to insert the text."),
-  //     text: z.string().min(1).describe("Text to insert at the specified index."),
-  //     paragraphStyle: z.object({
-  //       namedStyleType: z.enum([
-  //         "NORMAL_TEXT","TITLE","SUBTITLE",
-  //         "HEADING_1","HEADING_2","HEADING_3","HEADING_4","HEADING_5","HEADING_6",
-  //       ]).optional(),
-  //       alignment: z.enum(["START","CENTER","END","JUSTIFIED"]).optional(),
-  //       lineSpacing: z.number().optional(),
-  //       spaceAbove: z.object({
-  //         magnitude: z.number().describe("Points."),
-  //         unit: z.literal("PT").default("PT"),
-  //       }).optional(),
-  //       spaceBelow: z.object({
-  //         magnitude: z.number().describe("Points."),
-  //         unit: z.literal("PT").default("PT"),
-  //       }).optional(),
-  //     }).optional().describe("Optional paragraph style applied to the inserted range."),
-  //   }).optional().describe("Insert text into the body."),
-
-  //   replaceAllText: z.object({
-  //     containsText: z.object({
-  //       text: z.string().min(1).describe("Find pattern (literal, not regex)."),
-  //       matchCase: z.boolean().default(false).describe("Match case when true."),
-  //     }).describe("Criteria for text replacement."),
-  //     replaceText: z.string().default("").describe("Replacement text."),
-  //   }).optional().describe("Replace all occurrences of matching text."),
-
-  //   updateParagraphStyle: z.object({
-  //     range: z.union([
-  //       z.object({
-  //         startIndex: z.number().int().min(1),
-  //         endIndex: z.number().int().min(1),
-  //         segmentId: z.string().optional(),
-  //       }).describe("Half-open range [startIndex, endIndex)."),
-  //       z.object({ entireDocument: z.literal(true) }).describe("Apply to entire document."),
-  //     ]).describe("Target range for paragraph style update."),
-  //     paragraphStyle: z.object({
-  //       namedStyleType: z.enum([
-  //         "NORMAL_TEXT","TITLE","SUBTITLE",
-  //         "HEADING_1","HEADING_2","HEADING_3","HEADING_4","HEADING_5","HEADING_6",
-  //       ]).optional(),
-  //       alignment: z.enum(["START","CENTER","END","JUSTIFIED"]).optional(),
-  //       lineSpacing: z.number().optional(),
-  //       spaceAbove: z.object({ magnitude: z.number(), unit: z.literal("PT").default("PT") }).optional(),
-  //       spaceBelow: z.object({ magnitude: z.number(), unit: z.literal("PT").default("PT") }).optional(),
-  //     }).describe("ParagraphStyle to apply."),
-  //     fields: z.string().min(1).describe("Comma-separated mask of fields to update, e.g. 'namedStyleType,alignment'."),
-  //   }).optional().describe("Update paragraph-level styles in a range."),
-
-  //   updateTextStyle: z.object({
-  //     range: z.union([
-  //       z.object({
-  //         startIndex: z.number().int().min(1),
-  //         endIndex: z.number().int().min(1),
-  //         segmentId: z.string().optional(),
-  //       }),
-  //       z.object({ entireDocument: z.literal(true) }),
-  //     ]).describe("Target range for text style update."),
-  //     textStyle: z.object({
-  //       bold: z.boolean().optional(),
-  //       italic: z.boolean().optional(),
-  //       underline: z.boolean().optional(),
-  //       strikethrough: z.boolean().optional(),
-  //       fontSize: z.object({ magnitude: z.number(), unit: z.literal("PT").default("PT") }).optional(),
-  //       weightedFontFamily: z.object({ fontFamily: z.string(), weight: z.number().optional() }).optional(),
-  //     }).describe("TextStyle fields to set in the range."),
-  //     fields: z.string().min(1).describe("Comma-separated mask, e.g. 'bold,italic,weightedFontFamily,fontSize'."),
-  //   }).optional().describe("Update character-level text styles in a range."),
-
-  //   createParagraphBullets: z.object({
-  //     range: z.union([
-  //       z.object({ startIndex: z.number().int().min(1), endIndex: z.number().int().min(1), segmentId: z.string().optional() }),
-  //       z.object({ entireDocument: z.literal(true) }),
-  //     ]).describe("Range of paragraphs to convert to a list."),
-  //     bulletPreset: z.enum([
-  //       "BULLET_DISC_CIRCLE_SQUARE",
-  //       "BULLET_DIAMOND_CIRCLE_SQUARE",
-  //       "BULLET_CHECKBOX",
-  //       "NUMBERED_DECIMAL_ALPHA_ROMAN",
-  //       "NUMBERED_DECIMAL_ALPHA_ROMAN_PARENS",
-  //       "NUMBERED_DECIMAL_NESTED",
-  //     ]).describe("Preset for bullet/numbering style."),
-  //   }).optional().describe("Create bullets/numbering for paragraphs in a range."),
-
-  //   deleteParagraphBullets: z.object({
-  //     range: z.union([
-  //       z.object({ startIndex: z.number().int().min(1), endIndex: z.number().int().min(1), segmentId: z.string().optional() }),
-  //       z.object({ entireDocument: z.literal(true) }),
-  //     ]).describe("Range of paragraphs to remove bullets from."),
-  //   }).optional().describe("Remove bullets/numbering from paragraphs in a range."),
-
-  //   deleteContentRange: z.object({
-  //     range: z.union([
-  //       z.object({ startIndex: z.number().int().min(1), endIndex: z.number().int().min(1), segmentId: z.string().optional() }),
-  //       z.object({ entireDocument: z.literal(true) }),
-  //     ]).describe("Content range to delete."),
-  //   }).optional().describe("Delete content in the specified range."),
-  // }).superRefine((val, ctx) => {
-  //   const keys = [
-  //     "insertText",
-  //     "replaceAllText",
-  //     "updateParagraphStyle",
-  //     "updateTextStyle",
-  //     "createParagraphBullets",
-  //     "deleteParagraphBullets",
-  //     "deleteContentRange",
-  //   ] as const;
-  //   const provided = keys.filter(k => (val as any)[k] !== undefined);
-  //   if (provided.length !== 1) {
-  //     ctx.addIssue({
-  //       code: z.ZodIssueCode.custom,
-  //       message: "Provide exactly one operation: insertText | replaceAllText | updateParagraphStyle | updateTextStyle | createParagraphBullets | deleteParagraphBullets | deleteContentRange.",
-  //       path: [],
-  //     });
-  //   }
-  // }),
-  // Docs: batchUpdate (Params$Resource$Documents$Batchupdate-style)
+  // Docs: update a document based on document ID and request body parameters
   "update-doc": z.object({
     /** The ID of the document to update. */
     documentId: z
@@ -472,23 +344,44 @@ export const ToolSchemas = {
   }),
 
   // Drive: copy an existing Doc (new file gets a new ID)
-  "copy-doc": z.object({
-    fileId: z.string().describe("Drive file ID of the source Doc to copy."),
-    name: z
-      .string()
-      .optional()
-      .describe("Optional new name for the copied Doc."),
-    parents: z
-      .array(z.string())
-      .optional()
-      .describe("Optional array of Drive folder IDs to place the copy in."),
-    keepRevisionForever: z
-      .boolean()
-      .optional()
-      .describe(
-        "Whether to keep a persistent, immutable copy of the revision (Drive setting).",
-      ),
-  }),
+  // "copy-doc": z.object({
+  //   fileId: z.string().describe("Drive file ID of the source Doc to copy."),
+  //   requestBody: z
+  //     .object({
+  //       name: z
+  //         .string()
+  //         .optional()
+  //         .describe("Optional new name for the copied Doc."),
+  //     })
+  //     .optional(),
+  //   parents: z
+  //     .array(z.string())
+  //     .optional()
+  //     .describe("Optional array of Drive folder IDs to place the copy in."),
+  //   keepRevisionForever: z
+  //     .boolean()
+  //     .optional()
+  //     .describe(
+  //       "Whether to keep a persistent, immutable copy of the revision (Drive setting).",
+  //     ),
+  // }),
+  "copy-doc": z
+    .object({
+      // Top-level params
+      // enforceSingleParent: z.coerce.boolean().optional(), // deprecated
+      fileId: z.string().min(1).describe("ID of the source file to copy."),
+      ignoreDefaultVisibility: z.coerce.boolean().optional(),
+      includeLabels: z.string().optional(), // comma-separated label IDs
+      includePermissionsForView: z.enum(["published"]).optional(),
+      keepRevisionForever: z.coerce.boolean().optional(),
+      ocrLanguage: z.string().optional(), // ISO 639-1 hint; leave unset unless you're importing images
+      supportsAllDrives: z.coerce.boolean().default(true).optional(),
+      // supportsTeamDrives: z.coerce.boolean().optional(), // deprecated
+
+      // Request body (new file metadata)
+      requestBody: WritableDriveFile.optional(),
+    })
+    .strict(),
 
   // Helper: return tab metadata (IDs, titles, hierarchy) without full content
   "list-tabs": z.object({
@@ -573,12 +466,13 @@ export class ToolRegistry {
       schema: ToolSchemas["update-doc"],
       handler: UpdateDocHandler,
     },
-    // {
-    //   name: "copy-doc",
-    //   description: "Copy an existing Google Doc to a new file. Optionally rename and/or place in specific folders.",
-    //   schema: ToolSchemas["copy-doc"],
-    //   handler: CopyDocHandler
-    // },
+    {
+      name: "copy-doc",
+      description:
+        "Copy an existing Google Doc to a new file. Optionally rename and/or place in specific folders.",
+      schema: ToolSchemas["copy-doc"],
+      handler: CopyDocHandler,
+    },
     // {
     //   name: "list-tabs",
     //   description: "List all tabs in a Google Doc, returning tab IDs, titles, and optional child tabs.",
