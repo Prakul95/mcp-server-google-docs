@@ -23,6 +23,7 @@ These tool names reflect your implementation:
 - `get-doc` — Retrieve a Google Doc’s metadata and/or content. **Supports fetching tab content.**
 - `create-doc` — Create a new **blank** Google Doc with a given title. Optionally place it in a Drive folder.
 - `update-doc` — Update an existing Google Doc (e.g., insert/replace text, apply styles).
+- `copy-doc` — copy an existing Google Doc optionally with a given title.
 
 ---
 
